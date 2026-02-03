@@ -27,14 +27,21 @@ adalyze_dev/
 ```
 
 ##1) 依存関係
+```
 pip install -r requirements.txt
+```
 
 ##2) 環境変数（.env）
+
 プロジェクト直下に .env を作成し、OpenAI APIキーを設定します。
+```
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
+```
 
 ##3) 起動
+```
 streamlit run home.py
+```
 
 ##注意
 広告文に個人情報・機密情報は入力しないでください。
