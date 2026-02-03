@@ -43,6 +43,6 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 streamlit run home.py
 ```
 
-##注意
+## 注意
 - 広告文に個人情報・機密情報は入力しないでください。
 - 診断結果は参考情報であり、法的判断を代替するものではありません。
