@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #202123; font-family: 'Noto Sans JP', sans-serif; padding: 16px; display: flex; gap: 24px; }
+  .col { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .section-title { font-size: 9px; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.08em; font-family: monospace; margin-bottom: 4px; }
+  .token-row { display: flex; align-items: center; gap: 8px; }
+  .bar { height: 4px; background: #2EB8B2; border-radius: 2px; }
+  .token-name { font-family: monospace; font-size: 9px; color: #6b6b6b; min-width: 56px; }
+  .token-val { font-family: monospace; font-size: 9px; color: #4a4b50; }
+
+  .radius-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .r-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .r-chip { width: 36px; height: 36px; background: #303236; border: 1px solid rgba(255,255,255,0.15); }
+  .r-label { font-size: 9px; color: #6b6b6b; font-family: monospace; text-align: center; }
+</style></head>
+<body>
+<div class="col">
+  <div class="section-title">Spacing scale</div>
+  <div class="token-row"><div class="token-name">--space-1</div><div class="bar" style="width:4px"></div><div class="token-val">4px</div></div>
+  <div class="token-row"><div class="token-name">--space-2</div><div class="bar" style="width:8px"></div><div class="token-val">8px</div></div>
+  <div class="token-row"><div class="token-name">--space-3</div><div class="bar" style="width:12px"></div><div class="token-val">12px</div></div>
+  <div class="token-row"><div class="token-name">--space-4</div><div class="bar" style="width:16px"></div><div class="token-val">16px</div></div>
+  <div class="token-row"><div class="token-name">--space-6</div><div class="bar" style="width:24px"></div><div class="token-val">24px</div></div>
+  <div class="token-row"><div class="token-name">--space-8</div><div class="bar" style="width:32px"></div><div class="token-val">32px</div></div>
+  <div class="token-row"><div class="token-name">--space-12</div><div class="bar" style="width:48px"></div><div class="token-val">48px</div></div>
+  <div class="token-row"><div class="token-name">--space-16</div><div class="bar" style="width:64px"></div><div class="token-val">64px</div></div>
+</div>
+<div class="col">
+  <div class="section-title">Border radius</div>
+  <div class="radius-row">
+    <div class="r-box"><div class="r-chip" style="border-radius:4px"></div><div class="r-label">sm<br>4px</div></div>
+    <div class="r-box"><div class="r-chip" style="border-radius:8px"></div><div class="r-label">md<br>8px</div></div>
+    <div class="r-box"><div class="r-chip" style="border-radius:12px"></div><div class="r-label">lg<br>12px</div></div>
+    <div class="r-box"><div class="r-chip" style="border-radius:16px"></div><div class="r-label">xl<br>16px</div></div>
+    <div class="r-box"><div class="r-chip" style="border-radius:9999px"></div><div class="r-label">full</div></div>
+  </div>
+
+  <div class="section-title" style="margin-top:12px">Shadows</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div style="width:50px;height:36px;background:#2a2b2e;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center">
+      <span style="font-size:9px;color:#6b6b6b;font-family:monospace">sm</span>
+    </div>
+    <div style="width:50px;height:36px;background:#2a2b2e;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center">
+      <span style="font-size:9px;color:#6b6b6b;font-family:monospace">md</span>
+    </div>
+    <div style="width:50px;height:36px;background:#2a2b2e;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center">
+      <span style="font-size:9px;color:#6b6b6b;font-family:monospace">lg</span>
+    </div>
+  </div>
+</div>
+</body></html>

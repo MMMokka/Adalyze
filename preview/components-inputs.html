@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #202123; font-family: 'Noto Sans JP', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .label { font-size: 9px; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: monospace; }
+  .field { width: 100%; max-width: 300px; background: #2a2b2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; padding: 8px 12px; box-sizing: border-box; outline: none; resize: none; }
+  .field:focus { border-color: #2EB8B2; }
+  select.field { appearance: none; }
+  .field::placeholder { color: #4a4b50; }
+  .slider-wrap { max-width: 300px; }
+  input[type=range] { width: 100%; accent-color: #2EB8B2; }
+  .range-labels { display: flex; justify-content: space-between; font-size: 10px; color: #6b6b6b; }
+</style></head>
+<body>
+  <div>
+    <div class="label">Text input</div>
+    <input class="field" type="text" placeholder="キーワード検索（広告文 or 結果）" style="width:300px">
+  </div>
+  <div>
+    <div class="label">Textarea — ad text</div>
+    <textarea class="field" rows="3" style="width:300px" placeholder="広告文を入力してください"></textarea>
+  </div>
+  <div>
+    <div class="label">Select / Dropdown</div>
+    <select class="field" style="width:200px">
+      <option>副業・投資</option>
+      <option>健康・医療</option>
+      <option>美容・ダイエット</option>
+      <option>自己啓発</option>
+      <option>その他</option>
+    </select>
+  </div>
+  <div class="slider-wrap">
+    <div class="label">Range slider — スコア下限</div>
+    <input type="range" min="0" max="100" value="30">
+    <div class="range-labels"><span>0</span><span>50</span><span>100</span></div>
+  </div>
+</body></html>

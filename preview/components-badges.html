@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #202123; font-family: 'Noto Sans JP', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .label { font-size: 9px; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: monospace; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; border-radius: 9999px; padding: 3px 10px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 400; border-radius: 4px; padding: 3px 8px; }
+</style></head>
+<body>
+  <div>
+    <div class="label">Score badges</div>
+    <div class="row">
+      <span class="badge" style="background:rgba(46,184,178,0.15);color:#2EB8B2">安全 · 24</span>
+      <span class="badge" style="background:rgba(251,179,96,0.15);color:#FBB360">注意 · 58</span>
+      <span class="badge" style="background:rgba(205,66,70,0.15);color:#CD4246">危険 · 87</span>
+    </div>
+  </div>
+  <div>
+    <div class="label">Category tags</div>
+    <div class="row">
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">副業・投資</span>
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">健康・医療</span>
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">美容・ダイエット</span>
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">自己啓発</span>
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">生活雑貨</span>
+      <span class="tag" style="background:rgba(255,255,255,0.07);color:#b0b0b0">その他</span>
+    </div>
+  </div>
+  <div>
+    <div class="label">Status tags</div>
+    <div class="row">
+      <span class="tag" style="background:rgba(46,184,178,0.12);color:#2EB8B2;border:1px solid rgba(46,184,178,0.2)">✓ 保存済み</span>
+      <span class="tag" style="background:rgba(251,179,96,0.12);color:#FBB360;border:1px solid rgba(251,179,96,0.2)">⚠ 要注意</span>
+      <span class="tag" style="background:rgba(205,66,70,0.12);color:#CD4246;border:1px solid rgba(205,66,70,0.2)">✕ 削除済み</span>
+    </div>
+  </div>
+</body></html>

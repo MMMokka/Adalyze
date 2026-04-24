@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adalyze UI Kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #202123;
+    color: #fff;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  #root { display: flex; height: 100vh; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #4a4b50; border-radius: 3px; }
+
+  input, textarea, select, button {
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef } = React;
+
+/* ── Tokens ─────────────────────────────── */
+const C = {
+  bgMain:    '#202123',
+  bgSide:    '#000',
+  bgSurf:    '#2a2b2e',
+  bgElev:    '#303236',
+  fg1:       '#ffffff',
+  fg2:       '#b0b0b0',
+  fg3:       '#6b6b6b',
+  border:    'rgba(255,255,255,0.10)',
+  borderSt:  'rgba(255,255,255,0.20)',
+  safe:      '#2EB8B2',
+  warn:      '#FBB360',
+  danger:    '#CD4246',
+  safeTint:  'rgba(46,184,178,0.12)',
+  warnTint:  'rgba(251,179,96,0.12)',
+  dangerTint:'rgba(205,66,70,0.12)',
+  radius:    '8px',
+};
+
+function scoreColor(s) {
+  if (s === null) return C.fg3;
+  if (s < 40) return C.safe;
+  if (s < 70) return C.warn;
+  return C.danger;
+}
+function scoreTint(s) {
+  if (s === null) return 'transparent';
+  if (s < 40) return C.safeTint;
+  if (s < 70) return C.warnTint;
+  return C.dangerTint;
+}
+function scoreLabel(s) {
+  if (s === null) return '—';
+  if (s < 40) return '安全';
+  if (s < 70) return '注意';
+  return '危険';
+}
+
+/* ── SVG Icons ───────────────────────────── */
+function Icon({ name, size = 16, color = 'currentColor', style: s }) {
+  const stroke = { fill: 'none', stroke: color, strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const svg = (paths) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display:'inline-block', flexShrink:0, ...s }} {...stroke}>
+      {paths}
+    </svg>
+  );
+  switch (name) {
+    case 'home': return svg(<><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></>);
+    case 'warning': return svg(<><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>);
+    case 'log': return svg(<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></>);
+    case 'stats': return svg(<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>);
+    case 'search': return svg(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>);
+    case 'export': return svg(<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></>);
+    case 'trash': return svg(<><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></>);
+    case 'clock': return svg(<><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></>);
+    case 'pin': return svg(<><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></>);
+    case 'filter': return svg(<><polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/></>);
+    case 'chevron-down': return svg(<polyline points="6,9 12,15 18,9"/>);
+    case 'chevron-up': return svg(<polyline points="18,15 12,9 6,15"/>);
+    case 'check': return svg(<polyline points="20,6 9,17 4,12"/>);
+    case 'x': return svg(<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>);
+    case 'download': return svg(<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></>);
+    case 'alert': return svg(<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>);
+    default: return null;
+  }
+}
+
+/* ── Logo SVG inline ─────────────────────── */
+function Logo({ height = 28 }) {
+  return (
+    <svg height={height} viewBox="0 0 207.889 45.268" xmlns="http://www.w3.org/2000/svg" style={{display:'block'}}>
+      <path d="M26.546,27.842H9.745l-3.312,7.777H0L15.122,2.016h6.145l15.169,33.604h-6.529l-3.36-7.777h-.001ZM24.482,22.946l-6.336-14.689-6.289,14.689h12.625Z" fill="#fff"/>
+      <path d="M67.635,0v35.619h-5.761v-3.312c-2.017,2.448-4.992,3.648-8.497,3.648-7.44,0-12.961-5.185-12.961-13.153s5.521-13.105,12.961-13.105c3.312,0,6.24,1.104,8.257,3.457V0h6.001ZM61.729,22.802c0-4.896-3.312-8.017-7.633-8.017s-7.632,3.12-7.632,8.017,3.312,8.017,7.632,8.017,7.633-3.12,7.633-8.017Z" fill="#fff"/>
+      <path d="M99.362,20.594v15.025h-5.665v-3.12c-1.439,2.208-4.225,3.456-8.064,3.456-5.856,0-9.553-3.217-9.553-7.681,0-4.272,2.88-7.633,10.657-7.633h6.624v-.384c0-3.505-2.112-5.568-6.385-5.568-2.88,0-5.856.96-7.776,2.544l-2.353-4.368c2.736-2.112,6.721-3.169,10.85-3.169,7.393,0,11.665,3.505,11.665,10.897h0ZM93.361,27.603v-2.977h-6.192c-4.08,0-5.185,1.536-5.185,3.408,0,2.16,1.824,3.553,4.896,3.553,2.929,0,5.473-1.345,6.48-3.984h0Z" fill="#fff"/>
+      <path d="M109.44,0h6v35.619h-6V0Z" fill="#fff"/>
+      <path d="M149.713,9.984l-12.001,27.698c-2.353,5.809-5.616,7.585-9.889,7.585-2.545,0-5.232-.864-6.865-2.352l2.4-4.417c1.152,1.104,2.784,1.776,4.417,1.776,2.111,0,3.359-1.008,4.512-3.553l.433-1.008-11.186-25.73h6.241l8.064,18.962,8.112-18.962h5.762Z" fill="#fff"/>
+      <path d="M175.872,30.818v4.801h-22.13v-3.793l14.065-17.041h-13.777v-4.801h21.458v3.793l-14.113,17.041h14.497Z" fill="#fff"/>
+      <path d="M207.793,24.722h-20.114c.721,3.744,3.841,6.145,8.306,6.145,2.88,0,5.136-.912,6.96-2.784l3.217,3.696c-2.305,2.736-5.905,4.177-10.321,4.177-8.593,0-14.161-5.521-14.161-13.153s5.616-13.105,13.249-13.105c7.488,0,12.961,5.232,12.961,13.25,0,.479-.048,1.199-.096,1.775h-.001ZM187.631,20.737h14.546c-.48-3.696-3.312-6.24-7.249-6.24-3.889,0-6.721,2.496-7.297,6.24h0Z" fill="#fff"/>
+    </svg>
+  );
+}
+
+/* ── Sidebar ─────────────────────────────── */
+const NAV = [
+  { id: 'home',  icon: 'home',    label: 'ホーム' },
+  { id: 'check', icon: 'warning', label: '危険スコア診断' },
+  { id: 'log',   icon: 'log',     label: '診断ログ一覧' },
+  { id: 'stats', icon: 'stats',   label: '統計・傾向分析' },
+];
+
+function Sidebar({ page, setPage }) {
+  return (
+    <div style={{
+      width: 220, flexShrink: 0, background: C.bgSide,
+      display: 'flex', flexDirection: 'column', padding: '24px 0', gap: 2,
+      borderRight: `1px solid ${C.border}`,
+    }}>
+      <div style={{ padding: '0 20px 24px' }}>
+        <Logo height={24} />
+        <div style={{ fontSize: 9, color: C.fg3, marginTop: 6, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'monospace' }}>
+          無料ベータ
+        </div>
+      </div>
+      {NAV.map(n => (
+        <button key={n.id} onClick={() => setPage(n.id)} style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 20px', background: page === n.id ? 'rgba(255,255,255,0.06)' : 'transparent',
+          border: 'none', borderLeft: page === n.id ? `2px solid ${C.safe}` : '2px solid transparent',
+          color: page === n.id ? C.fg1 : C.fg2,
+          fontSize: 13, cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+          fontFamily: 'Noto Sans JP, sans-serif',
+        }}>
+          <Icon name={n.icon} size={15} color={page === n.id ? C.safe : C.fg3} />
+          {n.label}
+        </button>
+      ))}
+      <div style={{ flex: 1 }} />
+      <div style={{ padding: '0 20px', fontSize: 10, color: C.fg3, lineHeight: 1.6 }}>
+        本サービスの結果はあくまで参考情報です。
+      </div>
+    </div>
+  );
+}
+
+/* ── Home page ───────────────────────────── */
+function HomePage({ setPage }) {
+  const features = [
+    { icon: 'search',  title: '危険スコア診断', desc: 'AIが広告文の詐欺的・誇張的表現を0〜100で採点。カテゴリ別に最適化された判定。' },
+    { icon: 'log',     title: '履歴管理と検索', desc: '診断結果を自動保存。キーワード・カテゴリ・期間・スコアでフィルタリング。' },
+    { icon: 'export',  title: 'CSV/JSONエクスポート', desc: '任意の期間・条件で絞り込んだ結果をダウンロード。データ分析に活用可能。' },
+    { icon: 'stats',   title: '統計グラフ', desc: 'カテゴリ別平均スコア・分布・日別推移をグラフで可視化。傾向分析に対応。' },
+  ];
+  return (
+    <div style={{ padding: '40px 48px', overflowY: 'auto', flex: 1 }}>
+      <div style={{ marginBottom: 32 }}>
+        <Logo height={40} />
+        <p style={{ marginTop: 16, fontSize: 15, color: C.fg2, maxWidth: 560, lineHeight: 1.7 }}>
+          広告文に潜む<strong style={{ color: C.fg1 }}>詐欺的・誇張的な表現</strong>をAIが判定し、
+          危険スコアを可視化するツールです。
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 700, marginBottom: 32 }}>
+        {features.map(f => (
+          <div key={f.title} style={{
+            background: C.bgSurf, borderRadius: 10, padding: '18px 20px',
+            border: `1px solid ${C.border}`,
+          }}>
+            <div style={{ marginBottom: 10 }}><Icon name={f.icon} size={18} color={C.safe} /></div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.fg1, marginBottom: 4 }}>{f.title}</div>
+            <div style={{ fontSize: 12, color: C.fg2, lineHeight: 1.6 }}>{f.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: C.safeTint, border: `1px solid rgba(46,184,178,0.25)`, borderRadius: 8, padding: '12px 16px', maxWidth: 560, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+        <Icon name="pin" size={15} color={C.safe} style={{flexShrink:0, marginTop:1}} />
+        <div style={{ fontSize: 12, color: C.fg2, lineHeight: 1.6 }}>
+          広告文に<strong style={{ color: C.fg1 }}>個人情報や機密情報は含めない</strong>でください。本サービスの結果はあくまで参考情報です。
+        </div>
+      </div>
+
+      <button onClick={() => setPage('check')} style={{
+        marginTop: 28, background: C.safe, color: '#fff', border: 'none',
+        borderRadius: C.radius, padding: '11px 28px', fontSize: 14, fontWeight: 600,
+        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+      }}>
+        <Icon name="warning" size={15} color="#fff" /> 診断ページへ
+      </button>
+    </div>
+  );
+}
+
+/* ── FraudCheck page ─────────────────────── */
+const CATEGORIES = ['副業・投資', '健康・医療', '美容・ダイエット', '自己啓発', '生活雑貨', 'その他'];
+
+const SAMPLE_RESULTS = [
+  { score: 87, text: `危険スコア: 87/100\n\n理由:\n- 「絶対に稼げる」という根拠のない断言\n- 短期間での高額収入を保証する表現\n- リスクについての記載が一切ない\n\n詐欺的・誇張表現:\n- 「絶対」「確実」「保証」\n- 「月収100万円」\n\nアドバイス:\n投資・副業系広告で根拠なく高収入を保証する表現は消費者保護法に抵触する可能性があります。`, cat: '副業・投資' },
+  { score: 43, text: `危険スコア: 43/100\n\n理由:\n- 効果に関して過度な期待を持たせる表現がある\n- 科学的根拠が不明確\n- ただし全体的に穏やかな表現\n\n詐欺的・誇張表現:\n- 「驚きの効果」\n- 「他とは違う」\n\nアドバイス:\n表現は軽度の誇張が見られますが、法的リスクは低め。根拠の明示を推奨。`, cat: '美容・ダイエット' },
+  { score: 18, text: `危険スコア: 18/100\n\n理由:\n- 全体的に事実に基づく説明\n- 誇張表現は軽微\n- リスク記載あり\n\n詐欺的・誇張表現:\n- 特に問題となる表現は見当たりません\n\nアドバイス:\nこの広告文は比較的安全です。軽微な表現の改善で完成度が上がります。`, cat: 'その他' },
+];
+
+function FraudCheckPage({ addLog }) {
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [adText, setAdText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  function diagnose() {
+    if (!adText.trim()) return;
+    setLoading(true);
+    setResult(null);
+    setTimeout(() => {
+      const r = SAMPLE_RESULTS[Math.floor(Math.random() * SAMPLE_RESULTS.length)];
+      const res = { ...r, adText: adText, category, timestamp: new Date().toISOString() };
+      setResult(res);
+      addLog(res);
+      setLoading(false);
+    }, 1800);
+  }
+
+  const col = result ? scoreColor(result.score) : C.fg3;
+
+  return (
+    <div style={{ padding: '32px 48px', overflowY: 'auto', flex: 1 }}>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Icon name="warning" size={20} color={C.warn} /> 広告文の危険スコア診断
+      </h1>
+      <p style={{ fontSize: 12, color: C.fg3, marginBottom: 28 }}>カテゴリを選び、広告文を入力して診断してください。</p>
+
+      <div style={{ maxWidth: 580, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <label style={{ fontSize: 12, color: C.fg2, display: 'block', marginBottom: 6 }}>カテゴリを選択してください</label>
+          <select value={category} onChange={e => setCategory(e.target.value)} style={{
+            background: C.bgSurf, border: `1px solid ${C.border}`, borderRadius: C.radius,
+            color: C.fg1, fontSize: 13, padding: '9px 12px', width: '100%', outline: 'none',
+            cursor: 'pointer',
+          }}>
+            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label style={{ fontSize: 12, color: C.fg2, display: 'block', marginBottom: 6 }}>広告文を入力してください</label>
+          <textarea value={adText} onChange={e => setAdText(e.target.value)}
+            placeholder="例：副業で月収100万円！初心者でも絶対に稼げます。今すぐ登録を。"
+            rows={6} style={{
+              background: C.bgSurf, border: `1px solid ${C.border}`, borderRadius: C.radius,
+              color: C.fg1, fontSize: 13, padding: '10px 12px', width: '100%',
+              resize: 'vertical', outline: 'none', lineHeight: 1.6,
+            }}
+          />
+        </div>
+
+        <button onClick={diagnose} disabled={!adText.trim() || loading} style={{
+          background: adText.trim() && !loading ? C.safe : '#2a2b2e',
+          color: adText.trim() && !loading ? '#fff' : C.fg3,
+          border: 'none', borderRadius: C.radius, padding: '11px 24px',
+          fontSize: 14, fontWeight: 600, cursor: adText.trim() && !loading ? 'pointer' : 'default',
+          transition: 'all 0.2s', alignSelf: 'flex-start',
+        }}>
+          {loading ? 'AIが診断中です...' : '診断する'}
+        </button>
+
+        {result && (
+          <div style={{ marginTop: 8 }}>
+            <div style={{
+              background: scoreTint(result.score), border: `1px solid ${col}33`,
+              borderRadius: 10, padding: '20px 24px', marginBottom: 16,
+              display: 'flex', alignItems: 'center', gap: 20,
+            }}>
+              <div>
+                <div style={{ fontSize: 48, fontWeight: 700, color: col, lineHeight: 1 }}>{result.score}</div>
+                <div style={{ fontSize: 11, color: col, marginTop: 2 }}>/ 100</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: col }}>{scoreLabel(result.score)}</div>
+                <div style={{ fontSize: 12, color: C.fg2, marginTop: 4 }}>{result.category}</div>
+                <div style={{ marginTop: 8, height: 6, width: 160, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${result.score}%`, background: col, borderRadius: 3, transition: 'width 0.6s' }}></div>
+                </div>
+              </div>
+            </div>
+            <div style={{
+              background: C.bgSurf, border: `1px solid ${C.border}`, borderRadius: 10,
+              padding: '16px 20px', fontSize: 12, color: C.fg2, lineHeight: 1.8,
+              whiteSpace: 'pre-wrap', fontFamily: 'IBM Plex Mono, monospace',
+            }}>
+              {result.text}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Log page ────────────────────────────── */
+function LogPage({ logs }) {
+  const [open, setOpen] = useState(null);
+  const [keyword, setKeyword] = useState('');
+  const [catFilter, setCatFilter] = useState('すべて');
+  const [minScore, setMinScore] = useState(0);
+
+  const filtered = logs.filter(l => {
+    if (catFilter !== 'すべて' && l.category !== catFilter) return false;
+    if (l.score < minScore) return false;
+    const kw = keyword.toLowerCase();
+    if (kw && !l.adText.toLowerCase().includes(kw) && !l.text.toLowerCase().includes(kw)) return false;
+    return true;
+  });
+
+  return (
+    <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      {/* Sidebar filters */}
+      <div style={{ width: 200, flexShrink: 0, background: '#111', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 18, overflowY: 'auto', borderRight: `1px solid ${C.border}` }}>
+        <div>
+          <div style={{ fontSize: 10, color: C.fg3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: 'monospace', display:'flex', alignItems:'center', gap:5 }}><Icon name="filter" size={11} color={C.fg3} /> フィルター</div>
+          <input value={keyword} onChange={e => setKeyword(e.target.value)}
+            placeholder="キーワード検索" style={{
+              background: C.bgSurf, border: `1px solid ${C.border}`, borderRadius: 6,
+              color: C.fg1, fontSize: 12, padding: '7px 10px', width: '100%', outline: 'none',
+            }} />
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: C.fg3, marginBottom: 6 }}>カテゴリ</div>
+          <select value={catFilter} onChange={e => setCatFilter(e.target.value)} style={{
+            background: C.bgSurf, border: `1px solid ${C.border}`, borderRadius: 6,
+            color: C.fg1, fontSize: 12, padding: '7px 8px', width: '100%', outline: 'none',
+          }}>
+            {['すべて', ...CATEGORIES].map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: C.fg3, marginBottom: 6 }}>スコア下限: {minScore}以上</div>
+          <input type="range" min={0} max={100} value={minScore} onChange={e => setMinScore(+e.target.value)}
+            style={{ width: '100%', accentColor: C.safe }} />
+        </div>
+      </div>
+
+      {/* Log list */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="log" size={18} color={C.safe} /> 診断ログ一覧</h1>
+        <p style={{ fontSize: 11, color: C.fg3, marginBottom: 20 }}>表示件数: {filtered.length} 件 / 全件: {logs.length} 件</p>
+
+        {filtered.length === 0 ? (
+          <div style={{ color: C.fg3, fontSize: 13, padding: 24, background: C.bgSurf, borderRadius: 8 }}>
+            条件に合致する診断ログがありません。
+          </div>
+        ) : filtered.map((l, i) => {
+          const col = scoreColor(l.score);
+          const isOpen = open === i;
+          const dt = new Date(l.timestamp);
+          const dtStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+          return (
+            <div key={i} style={{ marginBottom: 8, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
+              <button onClick={() => setOpen(isOpen ? null : i)} style={{
+                display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                background: C.bgSurf, border: 'none', color: C.fg1, padding: '11px 16px',
+                fontSize: 12, cursor: 'pointer', textAlign: 'left', fontFamily: 'Noto Sans JP, sans-serif',
+              }}>
+                <Icon name="clock" size={13} color={C.fg3} />
+                <span style={{ color: C.fg3 }}>{dtStr}</span>
+                <span style={{ marginLeft: 4, background: scoreTint(l.score), color: col, border: `1px solid ${col}44`, borderRadius: 20, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>
+                  {scoreLabel(l.score)} · {l.score}
+                </span>
+                <span style={{ background: 'rgba(255,255,255,0.06)', color: C.fg2, borderRadius: 4, padding: '2px 7px', fontSize: 11 }}>{l.category}</span>
+                <span style={{ color: C.fg3, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.adText.slice(0, 40)}…</span>
+                <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} size={13} color={C.fg3} />
+              </button>
+              {isOpen && (
+                <div style={{ background: '#1a1b1e', padding: '16px 20px', borderTop: `1px solid ${C.border}` }}>
+                  <div style={{ fontSize: 12, color: C.fg2, marginBottom: 10, fontWeight: 600 }}>広告文</div>
+                  <pre style={{ fontSize: 11, color: C.fg2, background: C.bgSurf, borderRadius: 6, padding: '10px 12px', marginBottom: 14, whiteSpace: 'pre-wrap', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.6 }}>{l.adText}</pre>
+                  <div style={{ fontSize: 12, color: C.fg2, marginBottom: 10, fontWeight: 600 }}>診断結果</div>
+                  <pre style={{ fontSize: 11, color: C.fg2, whiteSpace: 'pre-wrap', fontFamily: 'IBM Plex Mono, monospace', lineHeight: 1.8 }}>{l.text}</pre>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Stats page ──────────────────────────── */
+function BarChart({ data, color = C.safe, height = 80 }) {
+  const max = Math.max(...data.map(d => d.value), 1);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height }}>
+      {data.map((d, i) => (
+        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: '100%', background: color, borderRadius: '3px 3px 0 0', height: `${(d.value / max) * (height - 20)}px`, minHeight: 2, opacity: 0.85 }}></div>
+          <div style={{ fontSize: 9, color: C.fg3, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{d.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MetricBox({ label, value, sub }) {
+  return (
+    <div style={{ background: C.bgSurf, borderRadius: 8, padding: '14px 18px', border: `1px solid ${C.border}` }}>
+      <div style={{ fontSize: 24, fontWeight: 700, color: C.fg1 }}>{value}</div>
+      <div style={{ fontSize: 11, color: C.fg2, marginTop: 2 }}>{label}</div>
+      {sub && <div style={{ fontSize: 10, color: C.fg3, marginTop: 1 }}>{sub}</div>}
+    </div>
+  );
+}
+
+function StatsPage({ logs }) {
+  const catData = CATEGORIES.map(c => ({
+    label: c.length > 4 ? c.slice(0, 4) + '…' : c,
+    value: logs.filter(l => l.category === c).length,
+  }));
+  const avgData = CATEGORIES.map(c => {
+    const sub = logs.filter(l => l.category === c);
+    return { label: c.length > 4 ? c.slice(0, 4) + '…' : c, value: sub.length ? Math.round(sub.reduce((a, b) => a + b.score, 0) / sub.length) : 0 };
+  });
+  const bins = ['0-9','10-19','20-29','30-39','40-49','50-59','60-69','70-79','80-89','90-99','100'];
+  const distData = bins.map((b, i) => ({ label: b, value: logs.filter(l => l.score >= i*10 && l.score < (i+1)*10).length }));
+
+  const avg = logs.length ? (logs.reduce((a, b) => a + b.score, 0) / logs.length).toFixed(1) : '—';
+  const high = logs.filter(l => l.score >= 70).length;
+
+  return (
+    <div style={{ padding: '28px 40px', overflowY: 'auto', flex: 1 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="stats" size={18} color={C.safe} /> 統計・傾向分析</h1>
+
+      {logs.length === 0 ? (
+        <div style={{ color: C.fg3, fontSize: 13, padding: 24, background: C.bgSurf, borderRadius: 8 }}>
+          まだ診断ログがありません。先に診断を実行してください。
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
+            <MetricBox label="件数" value={logs.length} />
+            <MetricBox label="平均スコア" value={avg} />
+            <MetricBox label="中央値" value={logs.length ? [...logs].sort((a,b)=>a.score-b.score)[Math.floor(logs.length/2)].score : '—'} />
+            <MetricBox label="高危険 (≥70)" value={high} sub={`${logs.length ? Math.round(high/logs.length*100) : 0}%`} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+            <div style={{ background: C.bgSurf, borderRadius: 10, padding: '16px 20px', border: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 14 }}>カテゴリ別 件数</div>
+              <BarChart data={catData} color={C.safe} height={100} />
+            </div>
+            <div style={{ background: C.bgSurf, borderRadius: 10, padding: '16px 20px', border: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 14 }}>カテゴリ別 平均スコア</div>
+              <BarChart data={avgData} color={C.warn} height={100} />
+            </div>
+          </div>
+
+          <div style={{ background: C.bgSurf, borderRadius: 10, padding: '16px 20px', border: `1px solid ${C.border}` }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.fg2, marginBottom: 14 }}>スコア分布（10点刻み）</div>
+            <BarChart data={distData} color={C.danger} height={100} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ── App shell ───────────────────────────── */
+const SEED_LOGS = [
+  { score: 87, text: SAMPLE_RESULTS[0].text, adText: '副業で月収100万円！初心者でも絶対に稼げます。今すぐ無料登録を。リスクゼロで始められます。', category: '副業・投資', timestamp: new Date(Date.now()-3600000*2).toISOString() },
+  { score: 43, text: SAMPLE_RESULTS[1].text, adText: '驚きの美容成分配合！他とは違う特別な処方で美肌を実感。', category: '美容・ダイエット', timestamp: new Date(Date.now()-3600000*5).toISOString() },
+  { score: 18, text: SAMPLE_RESULTS[2].text, adText: '新発売の収納グッズ。コンパクトで使いやすく、整理整頓に役立ちます。', category: '生活雑貨', timestamp: new Date(Date.now()-3600000*24).toISOString() },
+  { score: 72, text: SAMPLE_RESULTS[0].text, adText: '医師監修の健康食品。病気が治ると話題の成分を高配合。', category: '健康・医療', timestamp: new Date(Date.now()-3600000*48).toISOString() },
+];
+
+function App() {
+  const [page, setPage] = useState('home');
+  const [logs, setLogs] = useState(SEED_LOGS);
+
+  function addLog(l) { setLogs(prev => [l, ...prev]); }
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', fontFamily: 'Noto Sans JP, sans-serif' }}>
+      <Sidebar page={page} setPage={setPage} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {page === 'home'  && <HomePage setPage={setPage} />}
+        {page === 'check' && <FraudCheckPage addLog={addLog} />}
+        {page === 'log'   && <LogPage logs={logs} />}
+        {page === 'stats' && <StatsPage logs={logs} />}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

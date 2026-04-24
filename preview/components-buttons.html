@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #202123; font-family: 'Noto Sans JP', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .label { font-size: 9px; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-family: monospace; }
+  button { font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: none; font-size: 14px; border-radius: 8px; padding: 8px 18px; font-weight: 500; transition: opacity 0.15s; }
+  button:hover { opacity: 0.85; }
+</style></head>
+<body>
+  <div>
+    <div class="label">Primary — 診断する</div>
+    <div class="row">
+      <button style="background:#2EB8B2;color:#fff">診断する</button>
+      <button style="background:#2EB8B2;color:#fff;opacity:0.85">Hover</button>
+      <button style="background:#2EB8B2;color:#fff;opacity:0.4" disabled>Disabled</button>
+    </div>
+  </div>
+  <div>
+    <div class="label">Danger — 削除</div>
+    <div class="row">
+      <button style="background:#CD4246;color:#fff">全件削除</button>
+      <button style="background:#CD4246;color:#fff;opacity:0.85">Hover</button>
+      <button style="background:#CD4246;color:#fff;opacity:0.4" disabled>Disabled</button>
+    </div>
+  </div>
+  <div>
+    <div class="label">Secondary / Ghost</div>
+    <div class="row">
+      <button style="background:transparent;color:#b0b0b0;border:1px solid rgba(255,255,255,0.18)">CSVをダウンロード</button>
+      <button style="background:rgba(255,255,255,0.06);color:#b0b0b0;border:1px solid rgba(255,255,255,0.18)">Hover</button>
+    </div>
+  </div>
+  <div>
+    <div class="label">Full-width</div>
+    <div style="max-width:240px">
+      <button style="background:#2EB8B2;color:#fff;width:100%;display:block;text-align:center">選択したログを削除</button>
+    </div>
+  </div>
+</body></html>

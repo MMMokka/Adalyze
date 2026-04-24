@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #202123; font-family: 'Noto Sans JP', sans-serif; padding: 16px; }
+  .row { display: flex; gap: 12px; justify-content: center; }
+  .score-card { flex: 1; max-width: 160px; border-radius: 10px; padding: 14px 12px; text-align: center; }
+  .score-num { font-size: 36px; font-weight: 700; line-height: 1; }
+  .score-label { font-size: 11px; font-weight: 500; margin-top: 4px; }
+  .score-bar-wrap { margin: 10px 0 4px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 3px; }
+  .score-sub { font-size: 9px; color: #6b6b6b; }
+</style></head>
+<body>
+<div class="row">
+  <div class="score-card" style="background:rgba(46,184,178,0.10);border:1px solid rgba(46,184,178,0.25)">
+    <div class="score-num" style="color:#2EB8B2">24</div>
+    <div class="score-label" style="color:#2EB8B2">安全</div>
+    <div class="score-bar-wrap"><div class="score-bar" style="background:#2EB8B2;width:24%"></div></div>
+    <div class="score-sub">24 / 100</div>
+  </div>
+  <div class="score-card" style="background:rgba(251,179,96,0.10);border:1px solid rgba(251,179,96,0.25)">
+    <div class="score-num" style="color:#FBB360">58</div>
+    <div class="score-label" style="color:#FBB360">注意</div>
+    <div class="score-bar-wrap"><div class="score-bar" style="background:#FBB360;width:58%"></div></div>
+    <div class="score-sub">58 / 100</div>
+  </div>
+  <div class="score-card" style="background:rgba(205,66,70,0.10);border:1px solid rgba(205,66,70,0.25)">
+    <div class="score-num" style="color:#CD4246">87</div>
+    <div class="score-label" style="color:#CD4246">危険</div>
+    <div class="score-bar-wrap"><div class="score-bar" style="background:#CD4246;width:87%"></div></div>
+    <div class="score-sub">87 / 100</div>
+  </div>
+</div>
+</body></html>
